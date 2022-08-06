@@ -225,7 +225,7 @@ mongoose
 .connect("mongodb+srv://devenv:devenv@cluster0.xj3j5.mongodb.net/capacityplanningDB?retryWrites=true&w=majority")
 .then(() => {
 	app.listen(process.env.PORT, () => {
-	console.log("Server is listening on port 3000");
+	console.log("Server is listening on port"+process.env.PORT);
 	});
 })
 .catch((err) => {
