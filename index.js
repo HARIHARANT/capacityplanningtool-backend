@@ -97,24 +97,37 @@ app.post("/signup", async (req, res, next) => {
 	console.log("req.body::");
 	console.log( req.body);
 	const { name, email, password } = req.body;
-	const newUser = await User({
-		name,
-		email,
-		password
+	const existUser = await User.findOne({
+		email:email
 	});
+	let newUser;
+	console.log("existUser:: "+existUser)
+	if(existUser == null){
+		try {
+			newUser = await new User({
+				name,
+				email,
+				password
+			});
+			await newUser.save();
+		} catch {
+			const error = new Error("Error! Something went wrong.");
+			return next(error);
+		}
+	}else{
+		res.send({
+			errorCode:"USER_EXISTS",
+			message:"User already exists",
+			status:false
+		});
+	}	
 
-	try {
-		await newUser.save();
-	} catch {
-		const error = new Error("Error! Something went wrong.");
-		return next(error);
-	}
 	let token;
 	try {
 		token = jwt.sign(
-		{ userId: newUser.id, email: newUser.email },
-		jwtSecretKey,
-		{ expiresIn: "1h" }
+			{ userId: newUser.id, email: newUser.email },
+			jwtSecretKey,
+			{ expiresIn: "1h" }
 		);
 	} catch (err) {
 		const error = new Error("Error! Something went wrong.");
